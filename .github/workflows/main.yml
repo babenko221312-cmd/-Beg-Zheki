@@ -40,15 +40,12 @@ jobs:
                 - Бег ЖекиApp.swift
               info:
                 path: Info.plist
-                properties:
-                  CFBundleDisplayName: "Бег Жеки"
               settings:
                 base:
                   PRODUCT_BUNDLE_IDENTIFIER: com.begzheki.app
                   PRODUCT_NAME: BegZheki
                   SWIFT_VERSION: "5.0"
                   INFOPLIST_FILE: Info.plist
-
           EOF
 
           xcodegen generate
@@ -68,11 +65,42 @@ jobs:
             DEVELOPMENT_TEAM="" \
             build
 
+      - name: Fix app name for SideStore
+        run: |
+          APP_PATH="build/Build/Products/Release-iphoneos/BegZheki.app"
+
+          /usr/libexec/PlistBuddy \
+            -c "Set :CFBundleDisplayName BegZheki" \
+            "$APP_PATH/Info.plist"
+
+          /usr/libexec/PlistBuddy \
+            -c "Set :CFBundleName BegZheki" \
+            "$APP_PATH/Info.plist"
+
+          mkdir -p "$APP_PATH/ru.lproj"
+
+          cat > "$APP_PATH/ru.lproj/InfoPlist.strings" <<'EOF'
+          "CFBundleDisplayName" = "Бег Жеки";
+          EOF
+
+          echo "Проверка имени приложения:"
+          /usr/libexec/PlistBuddy \
+            -c "Print :CFBundleDisplayName" \
+            "$APP_PATH/Info.plist"
+
+          /usr/libexec/PlistBuddy \
+            -c "Print :CFBundleName" \
+            "$APP_PATH/Info.plist"
+
       - name: Create IPA
         run: |
           rm -rf Payload
           mkdir Payload
-          cp -R "build/Build/Products/Release-iphoneos/BegZheki.app" Payload/
+
+          cp -R \
+            "build/Build/Products/Release-iphoneos/BegZheki.app" \
+            Payload/
+
           zip -r "Бег-Жеки-unsigned.ipa" Payload
 
       - name: Save IPA
