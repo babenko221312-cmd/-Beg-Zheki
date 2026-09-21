@@ -31,6 +31,7 @@ jobs:
             BegZheki:
               type: application
               platform: iOS
+
               sources:
                 - ContentView.swift
                 - LocationManager.swift
@@ -38,8 +39,10 @@ jobs:
                 - RunSession.swift
                 - VoiceCoach.swift
                 - Бег ЖекиApp.swift
+
               info:
                 path: Info.plist
+
               settings:
                 base:
                   PRODUCT_BUNDLE_IDENTIFIER: com.begzheki.app
@@ -65,11 +68,14 @@ jobs:
             DEVELOPMENT_TEAM="" \
             build
 
-      - name: Fix app name for SideStore
+      - name: Configure app for iPhone and SideStore
         run: |
           APP_PATH="build/Build/Products/Release-iphoneos/BegZheki.app"
           PLIST="$APP_PATH/Info.plist"
 
+          echo "Настройка Info.plist..."
+
+          # Удаляем старые значения, если они существуют
           /usr/libexec/PlistBuddy \
             -c "Delete :CFBundleDisplayName" \
             "$PLIST" || true
@@ -79,6 +85,23 @@ jobs:
             "$PLIST" || true
 
           /usr/libexec/PlistBuddy \
+            -c "Delete :NSLocationWhenInUseUsageDescription" \
+            "$PLIST" || true
+
+          /usr/libexec/PlistBuddy \
+            -c "Delete :NSLocationAlwaysAndWhenInUseUsageDescription" \
+            "$PLIST" || true
+
+          /usr/libexec/PlistBuddy \
+            -c "Delete :NSLocationAlwaysUsageDescription" \
+            "$PLIST" || true
+
+          /usr/libexec/PlistBuddy \
+            -c "Delete :UIBackgroundModes" \
+            "$PLIST" || true
+
+          # Техническое имя приложения — только латиница
+          /usr/libexec/PlistBuddy \
             -c "Add :CFBundleDisplayName string BegZheki" \
             "$PLIST"
 
@@ -86,20 +109,65 @@ jobs:
             -c "Add :CFBundleName string BegZheki" \
             "$PLIST"
 
+          # Разрешение на использование GPS
+          /usr/libexec/PlistBuddy \
+            -c "Add :NSLocationWhenInUseUsageDescription string Приложению нужен доступ к геопозиции для отслеживания маршрута пробежки." \
+            "$PLIST"
+
+          # Разрешение на GPS в фоне
+          /usr/libexec/PlistBuddy \
+            -c "Add :NSLocationAlwaysAndWhenInUseUsageDescription string Приложению нужен доступ к геопозиции в фоновом режиме для продолжения отслеживания пробежки." \
+            "$PLIST"
+
+          # Совместимость со старыми версиями iOS
+          /usr/libexec/PlistBuddy \
+            -c "Add :NSLocationAlwaysUsageDescription string Приложению нужен доступ к геопозиции для отслеживания маршрута пробежки." \
+            "$PLIST"
+
+          # Работа GPS и голосового тренера в фоне
+          /usr/libexec/PlistBuddy \
+            -c "Add :UIBackgroundModes array" \
+            "$PLIST"
+
+          /usr/libexec/PlistBuddy \
+            -c "Add :UIBackgroundModes:0 string location" \
+            "$PLIST"
+
+          /usr/libexec/PlistBuddy \
+            -c "Add :UIBackgroundModes:1 string audio" \
+            "$PLIST"
+
+          # Русское название приложения
           mkdir -p "$APP_PATH/ru.lproj"
 
           cat > "$APP_PATH/ru.lproj/InfoPlist.strings" <<'EOF'
           "CFBundleDisplayName" = "Бег Жеки";
           EOF
 
-          echo "Проверка имени приложения:"
+          echo ""
+          echo "===== ПРОВЕРКА ПРИЛОЖЕНИЯ ====="
+
+          echo "Имя:"
           /usr/libexec/PlistBuddy \
             -c "Print :CFBundleDisplayName" \
             "$PLIST"
 
+          echo "Bundle:"
           /usr/libexec/PlistBuddy \
-            -c "Print :CFBundleName" \
+            -c "Print :CFBundleIdentifier" \
             "$PLIST"
+
+          echo "GPS:"
+          /usr/libexec/PlistBuddy \
+            -c "Print :NSLocationWhenInUseUsageDescription" \
+            "$PLIST"
+
+          echo "Фоновая работа:"
+          /usr/libexec/PlistBuddy \
+            -c "Print :UIBackgroundModes" \
+            "$PLIST"
+
+          echo "================================"
 
       - name: Create IPA
         run: |
@@ -117,5 +185,3 @@ jobs:
         with:
           name: Beg-Zheki-IPA
           path: Бег-Жеки-unsigned.ipa
-
-
