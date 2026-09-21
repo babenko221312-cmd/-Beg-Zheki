@@ -13,7 +13,8 @@ final class RunManager: ObservableObject {
     @Published private(set) var currentSpeed: Double = 0
     @Published private(set) var voiceCoachEnabled = true
     @Published private(set) var sessions: [RunSession] = []
-@Published private(set) var targetPaceSecondsPerKm: Double = 300
+    @Published private(set) var targetPaceSecondsPerKm: Double = 300
+
     let locationManager = LocationManager()
     let voiceCoach = VoiceCoach()
 
@@ -24,10 +25,18 @@ final class RunManager: ObservableObject {
 
     private let sessionsKey = "runtrack.sessions"
     private let voiceKey = "runtrack.voice.enabled"
+    private let targetPaceKey = "targetPaceSecondsPerKm"
 
     init() {
         loadSessions()
-        voiceCoachEnabled = UserDefaults.standard.object(forKey: voiceKey) as? Bool ?? true
+
+        voiceCoachEnabled =
+            UserDefaults.standard.object(forKey: voiceKey) as? Bool ?? true
+
+        targetPaceSecondsPerKm =
+            UserDefaults.standard.object(forKey: targetPaceKey) as? Double ?? 300
+
+        voiceCoach.targetPaceSecondsPerKm = targetPaceSecondsPerKm
     }
 
     deinit {
@@ -55,9 +64,11 @@ final class RunManager: ObservableObject {
 
     func setTargetPace(minutes: Int, seconds: Int) {
         let value = Double(minutes * 60 + seconds)
-        guard value >= 120, value <= 1200 else { return }
+
+        guard value >= 180, value <= 655 else { return }
+
         targetPaceSecondsPerKm = value
-        UserDefaults.standard.set(value, forKey: "targetPaceSecondsPerKm")
+        UserDefaults.standard.set(value, forKey: targetPaceKey)
         voiceCoach.targetPaceSecondsPerKm = value
     }
 
@@ -73,6 +84,8 @@ final class RunManager: ObservableObject {
         state = .running
 
         voiceCoach.reset()
+        voiceCoach.targetPaceSecondsPerKm = targetPaceSecondsPerKm
+
         locationManager.start()
         startTimer()
     }
@@ -86,6 +99,7 @@ final class RunManager: ObservableObject {
 
         state = .paused
         pauseStartedAt = Date()
+
         locationManager.stop()
         timer?.invalidate()
     }
@@ -99,6 +113,7 @@ final class RunManager: ObservableObject {
 
         pauseStartedAt = nil
         state = .running
+
         locationManager.start()
         startTimer()
     }
@@ -125,6 +140,7 @@ final class RunManager: ObservableObject {
 
         sessions.insert(session, at: 0)
         saveSessions()
+
         state = .finished
     }
 
@@ -139,13 +155,16 @@ final class RunManager: ObservableObject {
         startedAt = nil
         pausedDuration = 0
         pauseStartedAt = nil
+
         state = .idle
     }
 
     private func startTimer() {
         timer?.invalidate()
 
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
+            [weak self] _ in
+
             guard let self else { return }
 
             self.updateElapsed()
@@ -154,11 +173,10 @@ final class RunManager: ObservableObject {
 
             if self.voiceCoachEnabled {
                 self.voiceCoach.announceIfNeeded(
-    distanceMeters: distance,
-    paceSecondsPerKm: currentPace * 60.0,
-    elapsedSeconds: elapsed
-)
-    
+                    distanceMeters: self.distance,
+                    paceSecondsPerKm: self.currentPace * 60.0,
+                    elapsedSeconds: self.elapsed
+                )
             }
         }
 
@@ -182,8 +200,10 @@ final class RunManager: ObservableObject {
     }
 
     private func loadSessions() {
-        guard let data = UserDefaults.standard.data(forKey: sessionsKey),
-              let decoded = try? JSONDecoder().decode([RunSession].self, from: data) else {
+        guard
+            let data = UserDefaults.standard.data(forKey: sessionsKey),
+            let decoded = try? JSONDecoder().decode([RunSession].self, from: data)
+        else {
             return
         }
 
