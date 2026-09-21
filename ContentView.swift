@@ -2,8 +2,7 @@ import SwiftUI
 import MapKit
 
 struct ContentView: View {
-    @State private var targetMinutes = 5
-    @State private var targetSeconds = 0
+
     @EnvironmentObject private var runManager: RunManager
     @State private var showRoute = false
     @State private var dragOffset: CGFloat = 0
@@ -122,7 +121,7 @@ struct DashboardView: View {
     private var header: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("RUNTRACK")
+                Text("БЕГ ЖЕКИ")
                     .font(.system(size: 14, weight: .heavy, design: .rounded))
                     .tracking(2)
                 Text(statusText)
@@ -150,7 +149,7 @@ struct DashboardView: View {
                 .font(.system(size: 68, weight: .black, design: .rounded))
                 .monospacedDigit()
                 .minimumScaleFactor(0.7)
-            Text("КИЛОМЕТРОВ")
+            Text("КМ")
                 .font(.system(size: 12, weight: .bold, design: .rounded))
                 .tracking(2.5)
                 .foregroundStyle(.secondary)
