@@ -13,7 +13,7 @@ final class RunManager: ObservableObject {
     @Published private(set) var currentSpeed: Double = 0
     @Published private(set) var voiceCoachEnabled = true
     @Published private(set) var sessions: [RunSession] = []
-
+@Published private(set) var targetPaceSecondsPerKm: Double = 300
     let locationManager = LocationManager()
     let voiceCoach = VoiceCoach()
 
