@@ -1,0 +1,67 @@
+name: Build Beg Zheki
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Create Xcode project
+        run: |
+          cat > project.yml <<'EOF'
+          name: Бег Жеки
+
+          options:
+            bundleIdPrefix: com.begzheki
+            deploymentTarget:
+              iOS: "17.0"
+
+          targets:
+            Бег Жеки:
+              type: application
+              platform: iOS
+              sources:
+                - ContentView.swift
+                - LocationManager.swift
+                - RunManager.swift
+                - RunSession.swift
+                - VoiceCoach.swift
+                - Бег ЖекиApp.swift
+              info:
+                path: Info.plist
+              settings:
+                base:
+                  PRODUCT_BUNDLE_IDENTIFIER: com.begzheki.app
+                  SWIFT_VERSION: "5.0"
+                  INFOPLIST_FILE: Info.plist
+          EOF
+
+          xcodegen generate
+
+      - name: Build iPhone simulator version
+        run: |
+          xcodebuild \
+            -project "Бег Жеки.xcodeproj" \
+            -scheme "Бег Жеки" \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Save application
+        uses: actions/upload-artifact@v4
+        with:
+          name: Beg-Zheki-iOS
+          path: build/Build/Products/Debug-iphonesimulator/*.app
