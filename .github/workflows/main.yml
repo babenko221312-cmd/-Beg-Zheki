@@ -20,7 +20,7 @@ jobs:
       - name: Create Xcode project
         run: |
           cat > project.yml <<'EOF'
-          name: Бег Жеки
+          name: BegZheki
 
           options:
             bundleIdPrefix: com.begzheki
@@ -28,7 +28,7 @@ jobs:
               iOS: "17.0"
 
           targets:
-            Бег Жеки:
+            BegZheki:
               type: application
               platform: iOS
               sources:
@@ -52,8 +52,8 @@ jobs:
       - name: Build iPhone device version
         run: |
           xcodebuild \
-            -project "Бег Жеки.xcodeproj" \
-            -scheme "Бег Жеки" \
+            -project "BegZheki.xcodeproj" \
+-scheme "BegZheki" \
             -sdk iphoneos \
             -configuration Release \
             -destination 'generic/platform=iOS' \
@@ -68,7 +68,7 @@ jobs:
         run: |
           rm -rf Payload
           mkdir Payload
-          cp -R "build/Build/Products/Release-iphoneos/Бег Жеки.app" Payload/
+          cp -R "build/Build/Products/Release-iphoneos/BegZheki.app" Payload/
           zip -r "Бег-Жеки-unsigned.ipa" Payload
 
       - name: Save IPA
