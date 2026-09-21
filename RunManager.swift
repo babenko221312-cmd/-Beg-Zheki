@@ -154,10 +154,11 @@ final class RunManager: ObservableObject {
 
             if self.voiceCoachEnabled {
                 self.voiceCoach.announceIfNeeded(
-                    distanceMeters: self.distance,
-                    elapsed: self.elapsed,
-                    pace: self.averagePace
-                )
+    distanceMeters: distance,
+    paceSecondsPerKm: currentPace * 60.0,
+    elapsedSeconds: elapsed
+)
+    
             }
         }
 
