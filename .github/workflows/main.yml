@@ -40,11 +40,15 @@ jobs:
                 - Бег ЖекиApp.swift
               info:
                 path: Info.plist
+                properties:
+                  CFBundleDisplayName: "Бег Жеки"
               settings:
                 base:
                   PRODUCT_BUNDLE_IDENTIFIER: com.begzheki.app
+                  PRODUCT_NAME: BegZheki
                   SWIFT_VERSION: "5.0"
                   INFOPLIST_FILE: Info.plist
+
           EOF
 
           xcodegen generate
@@ -53,7 +57,7 @@ jobs:
         run: |
           xcodebuild \
             -project "BegZheki.xcodeproj" \
--scheme "BegZheki" \
+            -scheme "BegZheki" \
             -sdk iphoneos \
             -configuration Release \
             -destination 'generic/platform=iOS' \
@@ -76,3 +80,5 @@ jobs:
         with:
           name: Beg-Zheki-IPA
           path: Бег-Жеки-unsigned.ipa
+
+
