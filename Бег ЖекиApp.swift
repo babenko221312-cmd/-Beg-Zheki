@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct Бег ЖекиApp: App {
+struct Бег_ЖекиApp: App {
     @StateObject private var runManager = RunManager()
 
     var body: some Scene {
