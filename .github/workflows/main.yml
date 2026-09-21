@@ -65,18 +65,34 @@ jobs:
             DEVELOPMENT_TEAM="" \
             build
 
+     
       - name: Fix app name for SideStore
         run: |
           APP_PATH="build/Build/Products/Release-iphoneos/BegZheki.app"
+          PLIST="$APP_PATH/Info.plist"
 
           /usr/libexec/PlistBuddy \
-            -c "Set :CFBundleDisplayName BegZheki" \
-            "$APP_PATH/Info.plist"
+            -c "Add :CFBundleDisplayName string BegZheki" \
+            "$PLIST"
 
           /usr/libexec/PlistBuddy \
-            -c "Set :CFBundleName BegZheki" \
-            "$APP_PATH/Info.plist"
+            -c "Add :CFBundleName string BegZheki" \
+            "$PLIST"
 
+          mkdir -p "$APP_PATH/ru.lproj"
+
+          cat > "$APP_PATH/ru.lproj/InfoPlist.strings" <<'EOF'
+          "CFBundleDisplayName" = "Бег Жеки";
+          EOF
+
+          echo "Проверка:"
+          /usr/libexec/PlistBuddy \
+            -c "Print :CFBundleDisplayName" \
+            "$PLIST"
+
+          /usr/libexec/PlistBuddy \
+            -c "Print :CFBundleName" \
+            "$PLIST"
           mkdir -p "$APP_PATH/ru.lproj"
 
           cat > "$APP_PATH/ru.lproj/InfoPlist.strings" <<'EOF'
