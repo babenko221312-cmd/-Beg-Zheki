@@ -65,11 +65,18 @@ jobs:
             DEVELOPMENT_TEAM="" \
             build
 
-     
       - name: Fix app name for SideStore
         run: |
           APP_PATH="build/Build/Products/Release-iphoneos/BegZheki.app"
           PLIST="$APP_PATH/Info.plist"
+
+          /usr/libexec/PlistBuddy \
+            -c "Delete :CFBundleDisplayName" \
+            "$PLIST" || true
+
+          /usr/libexec/PlistBuddy \
+            -c "Delete :CFBundleName" \
+            "$PLIST" || true
 
           /usr/libexec/PlistBuddy \
             -c "Add :CFBundleDisplayName string BegZheki" \
@@ -85,28 +92,14 @@ jobs:
           "CFBundleDisplayName" = "Бег Жеки";
           EOF
 
-          echo "Проверка:"
-          /usr/libexec/PlistBuddy \
-            -c "Print :CFBundleDisplayName" \
-            "$PLIST"
-
-          /usr/libexec/PlistBuddy \
-            -c "Print :CFBundleName" \
-            "$PLIST"
-          mkdir -p "$APP_PATH/ru.lproj"
-
-          cat > "$APP_PATH/ru.lproj/InfoPlist.strings" <<'EOF'
-          "CFBundleDisplayName" = "Бег Жеки";
-          EOF
-
           echo "Проверка имени приложения:"
           /usr/libexec/PlistBuddy \
             -c "Print :CFBundleDisplayName" \
-            "$APP_PATH/Info.plist"
+            "$PLIST"
 
           /usr/libexec/PlistBuddy \
             -c "Print :CFBundleName" \
-            "$APP_PATH/Info.plist"
+            "$PLIST"
 
       - name: Create IPA
         run: |
