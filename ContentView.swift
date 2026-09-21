@@ -73,7 +73,49 @@ struct DashboardView: View {
                                 icon: "figure.run"
                             )
                         }
+// Целевой темп
+VStack(alignment: .leading, spacing: 10) {
+    HStack {
+        Label("Целевой темп", systemImage: "target")
+            .font(.system(size: 14, weight: .semibold))
 
+        Spacer()
+
+        Text(formatTargetPace(runManager.targetPaceSecondsPerKm))
+            .font(.system(size: 15, weight: .bold, design: .rounded))
+            .monospacedDigit()
+            .foregroundStyle(.orange)
+    }
+
+    Picker(
+        "Целевой темп",
+        selection: Binding(
+            get: {
+                Int(runManager.targetPaceSecondsPerKm)
+            },
+            set: { value in
+                runManager.setTargetPace(
+                    minutes: value / 60,
+                    seconds: value % 60
+                )
+            }
+        )
+    ) {
+        ForEach(Array(stride(from: 180, through: 655, by: 5)), id: \.self) { seconds in
+            Text(formatTargetPace(Double(seconds)))
+                .tag(seconds)
+        }
+    }
+    .pickerStyle(.menu)
+    .tint(.orange)
+
+    Text("Голосовой тренер предупредит, если темп отличается от цели более чем на 15 секунд.")
+        .font(.system(size: 11))
+        .foregroundStyle(.secondary)
+}
+.padding(.horizontal, 16)
+.padding(.vertical, 13)
+.background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18))
                         HStack {
                             Label("Голосовой тренер", systemImage: "speaker.wave.2.fill")
                                 .font(.system(size: 14, weight: .semibold))
