@@ -515,3 +515,7 @@ func formatPace(_ minutesPerKm: Double) -> String {
     let totalSeconds = Int(minutesPerKm * 60.0)
     return String(format: "%d:%02d /км", totalSeconds / 60, totalSeconds % 60)
 }
+func formatTargetPace(_ seconds: Double) -> String {
+    let total = Int(seconds.rounded())
+    return String(format: "%d:%02d /км", total / 60, total % 60)
+}
